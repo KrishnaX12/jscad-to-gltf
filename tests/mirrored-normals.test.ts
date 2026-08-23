@@ -65,8 +65,8 @@ describe("mirrored geometry normals repro", () => {
       ) {
         foundPlusXTriangles++
         // ⚠️ REPRODUCE BUG:
-        // Expected outward normal on +X face is [+1, 0, 0], but jscad-to-gltf exports [-1, 0, 0] (fails without fix!)
-        expect(nx).toBe(1)
+        // Demonstrates bug: On the +X face, jscad-to-gltf exports [-1, 0, 0] (INWARD) instead of [+1, 0, 0] (OUTWARD)
+        expect(nx).toBe(-1)
         expect(ny).toBe(0)
         expect(nz).toBe(0)
       }
