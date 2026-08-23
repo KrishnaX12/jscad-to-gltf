@@ -111,13 +111,25 @@ describe("mirrored geometry normals repro", () => {
 
   test("visual 3D snapshot side-by-side: unmirrored reference vs mirrored geometry", async () => {
     // Original unmirrored L-shape on the left (blue)
-    const baseLeft = jscad.primitives.cuboid({ size: [10, 4, 2], center: [-7, 0, 1] })
-    const postLeft = jscad.primitives.cuboid({ size: [2, 4, 8], center: [-11, 0, 4] })
+    const baseLeft = jscad.primitives.cuboid({
+      size: [10, 4, 2],
+      center: [-7, 0, 1],
+    })
+    const postLeft = jscad.primitives.cuboid({
+      size: [2, 4, 8],
+      center: [-11, 0, 4],
+    })
     const originalLeft = jscad.booleans.union(baseLeft, postLeft)
 
     // Mirrored L-shape on the right (red)
-    const base = jscad.primitives.cuboid({ size: [10, 4, 2], center: [0, 0, 1] })
-    const post = jscad.primitives.cuboid({ size: [2, 4, 8], center: [-4, 0, 4] })
+    const base = jscad.primitives.cuboid({
+      size: [10, 4, 2],
+      center: [0, 0, 1],
+    })
+    const post = jscad.primitives.cuboid({
+      size: [2, 4, 8],
+      center: [-4, 0, 4],
+    })
     const unionModel = jscad.booleans.union(base, post)
     const mirroredRight = jscad.transforms.translate(
       [7, 0, 0],
