@@ -65,8 +65,8 @@ describe("mirrored geometry normals repro", () => {
       ) {
         foundPlusXTriangles++
         // ⚠️ REPRODUCE BUG:
-        // On the +X face, jscad-to-gltf exported normal is [-1, 0, 0] (INWARD) instead of [+1, 0, 0] (OUTWARD)!
-        expect(nx).toBe(-1)
+        // Expected outward normal on +X face is [+1, 0, 0], but jscad-to-gltf exports [-1, 0, 0] (fails without fix!)
+        expect(nx).toBe(1)
         expect(ny).toBe(0)
         expect(nz).toBe(0)
       }
@@ -107,5 +107,47 @@ describe("mirrored geometry normals repro", () => {
     })
 
     expect(png).toMatchPngSnapshot(import.meta.path)
+  })
+
+  test("visual 3D snapshot side-by-side: unmirrored reference vs mirrored geometry", async () => {
+    // Original unmirrored L-shape on the left (blue)
+    const baseLeft = jscad.primitives.cuboid({ size: [10, 4, 2], center: [-7, 0, 1] })
+    const postLeft = jscad.primitives.cuboid({ size: [2, 4, 8], center: [-11, 0, 4] })
+    const originalLeft = jscad.booleans.union(baseLeft, postLeft)
+
+    // Mirrored L-shape on the right (red)
+    const base = jscad.primitives.cuboid({ size: [10, 4, 2], center: [0, 0, 1] })
+    const post = jscad.primitives.cuboid({ size: [2, 4, 8], center: [-4, 0, 4] })
+    const unionModel = jscad.booleans.union(base, post)
+    const mirroredRight = jscad.transforms.translate(
+      [7, 0, 0],
+      jscad.transforms.mirror({ normal: [1, 0, 0] }, unionModel),
+    )
+
+    const glbResult = await convertJscadModelToGltf(
+      {
+        geometries: [
+          { geom: originalLeft, color: "#3498db" },
+          { geom: mirroredRight, color: "#e74c3c" },
+        ],
+      },
+      { format: "glb" },
+    )
+
+    expect(glbResult.format).toBe("glb")
+
+    const png = await renderGLTFToPNGFromGLB(glbResult.data as ArrayBuffer, {
+      width: 800,
+      height: 600,
+      backgroundColor: [1, 1, 1],
+      cull: true,
+      camPos: [0, -25, 15],
+      lookAt: [0, 0, 3],
+    })
+
+    expect(png).toMatchPngSnapshot(
+      import.meta.path,
+      "mirrored-normals-side-by-side",
+    )
   })
 })
